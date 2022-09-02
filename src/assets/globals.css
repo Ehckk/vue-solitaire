@@ -1,0 +1,30 @@
+:root {
+	--dim-card: 1.25rem;
+	--color-white: hsl(0, 0%, 100%);
+	--color-red: hsl(0, 100%, 30%);
+	--color-black: hsl(0, 0%, 0%);
+	--color-yellow: hsl(45, 50%, 50%);
+	--color-face-light: hsl(224, 50%, 70%);
+	--color-face-med: hsl(224, 50%, 60%);
+	--color-face-dark: hsl(224, 50%, 50%);
+	--color-green-dark: hsl(120, 40%, 25%);
+	--color-green-med: hsl(120, 40%, 30%);
+	--color-green-light: hsl(120, 40%, 35%);
+	--color-util: hsl(120, 40%, 50%);
+	--color-text: hsl(120, 40%, 70%);
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: Helvetica;
+}
+
+body {
+	height: 100vh;
+	width: 100vw;
+	background-image: linear-gradient(var(--color-green-med) 20%, var(--color-green-light) 80%);
+	z-index: -1000;
+	overflow: hidden;
+}
