@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, watch } from '@vue/runtime-dom';
-import jack from '@/assets/images/jack.png'
+import { ref, watch, type FunctionalComponent, type SVGAttributes } from '@vue/runtime-dom';
+import JackComponent from './icons/jack.svg?component'
 import queen from '@/assets/images/queen.png'
 import king from '@/assets/images/king.png'
-import spade from '@/assets/images/spade.png'
-import heart from '@/assets/images/heart.png'
-import club from '@/assets/images/club.png'
-import diamond from '@/assets/images/diamond.png'
+import SpadeComponent from './icons/spade.svg?component'
+import HeartComponent from './icons/heart.svg?component'
+import ClubComponent from './icons/club.svg?component'
+import DiamondComponent from './icons/diamond.svg?component'
 import type { CardType } from '@/interfaces';
 import { board, flipTime, targetCard } from '@/utils/store';
 import { Suits } from '@/interfaces/Suits';
@@ -18,8 +18,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const SUIT_IMG = props.card.suit === 'Spade' ? spade : props.card.suit === 'Heart' ? heart : props.card.suit === 'Club' ? club : diamond 
-const FACE_IMG = props.card.value > 10 ? props.card.value === 13 ? king : props.card.value === 12 ? queen : jack : 'none'
+const SuitComponent: FunctionalComponent<SVGAttributes, {}> = props.card.suit === Suits.Spade ? SpadeComponent : props.card.suit === Suits.Heart ? HeartComponent : props.card.suit === Suits.Club ? ClubComponent : DiamondComponent  
 const z = ref(board.getCardIndex(props.card.suit, props.card.value, props.card.stack) + 1)
 const cardRef = toRefs(props).card
 const isFlipping = ref(false)
@@ -82,33 +81,35 @@ const cardClick = () => {
 }
 
 const cardClass = computed(() => ({ 'faceDown': faceDown, 'flipping': isFlipping.value, 'isTarget': isTarget.value, 'isDisabled': (faceDown && cardRef.value.stack !== 'draw') || locked.value }))
-const suitImage = computed(() => `url(${SUIT_IMG})`) 
-const faceImage = computed(() => `url(${FACE_IMG})`)
+const baseColor = computed(() => props.card.suit === Suits.Spade || props.card.suit === Suits.Club ? 'var(--color-black)' : 'var(--color-red)')
+const altColor = computed(() =>  props.card.suit === Suits.Spade || props.card.suit === Suits.Club ? 'var(--color-red)' : 'var(--color-black)')
 
 </script>
 <template>
 	<div class="card" :class="cardClass" @click="cardClick()">
 		<div class="side left">
-			<div class="suitImg small"></div>
+			<SuitComponent class="suitImg small"/>
 			<h4 class="suitNum" :suit="card.suit">{{ getValue(card.value) }}</h4>
 		</div>
 		<div class="middle">
-			<div class="center" :class="{ face: card.value > 10 }">			
+			<div class="center" :class="{ face: card.value > 10 }">		
+				<JackComponent v-if="card.value ===  11" class="faceImg"/>
 				<div class="innerSide left" :class="{ start: card.value > 10 }">
-					<div v-if="card.value > 10" class="suitImg"></div>
-					<div v-else-if="card.value > 3" v-for="(i) in card.value < 10 ? Math.floor((card.value) / 2) : 4" :key="i" class="suitImg"></div>
+					<SuitComponent v-if="card.value > 10" class="suitImg"/>
+					<SuitComponent v-else-if="card.value > 3" v-for="(i) in card.value < 10 ? Math.floor((card.value) / 2) : 4" :key="i" class="suitImg"/>
 				</div>
 				<div class="innerSide center">
-					<div v-if="card.value < 11" v-for="(i) in card.value < 4 ? card.value : card.value === 10 ? 2 : card.value % 2" :key="i" class="suitImg"></div>
+					<SuitComponent v-if="card.value < 11" v-for="(i) in card.value < 4 ? card.value : card.value === 10 ? 2 : card.value % 2" :key="i" class="suitImg"></SuitComponent>
 				</div>
 				<div class="innerSide right" :class="{ start: card.value > 10 }">
-					<div v-if="card.value > 10" class="suitImg"></div>
-					<div v-else-if="card.value > 3" v-for="(i) in card.value < 10 ? Math.floor((card.value) / 2) : 4" :key="i" class="suitImg"></div>
+					<SuitComponent v-if="card.value > 10" class="suitImg"/>
+					<SuitComponent v-else-if="card.value > 3" v-for="(i) in card.value < 10 ? Math.floor((card.value) / 2) : 4" :key="i" class="suitImg"/>
+					
 				</div>
 			</div>
 		</div>
 		<div class="side right">
-			<div class="suitImg small"></div>
+			<SuitComponent class="suitImg small"/>
 			<h4 class="suitNum" :suit="card.suit">{{ getValue(card.value) }}</h4>
 		</div>
 	</div>
@@ -119,8 +120,8 @@ const faceImage = computed(() => `url(${FACE_IMG})`)
 		--z-index: v-bind(z);
 		--translate-x: calc(v-bind('getTranslateX()') * var(--dim-card) * 5.5);
 		--translate-y: calc(v-bind('getTranslateY()') * var(--dim-card) * 7.5);
-		--face-image: v-bind(faceImage);
-		--suit-image: v-bind(suitImage);
+		--base-color: v-bind(baseColor);
+		--alt-color: v-bind(altColor);
 		/* --card-flip-time: v-bind(CARD_FLIP_TIME / 2); TODO lol */
 	}
 	.card {
@@ -152,17 +153,14 @@ const faceImage = computed(() => `url(${FACE_IMG})`)
 		align-items: center;
 	}
 	.side.right {
-		transform: rotateX(-180deg);
+		transform: rotateZ(-180deg);
 	}
 	.middle {
-		min-height: 100%;
-		padding-top: var(--dim-card);
-		padding-bottom: var(--dim-card);
 		display: flex;
 		align-items: center;
 	}
 	.center {
-		height: 100%;
+		min-height: calc(var(--dim-card) * 5);
 		border-radius: calc(var(--dim-card) * .125);
 		border-width:  calc(var(--dim-card) * .125);
 		border-style: solid;
@@ -171,14 +169,15 @@ const faceImage = computed(() => `url(${FACE_IMG})`)
 	}
 	.center.face {
 		border-color: var(--color-face-light);
-		background-position: center center;
-		background-repeat: no-repeat;
-		background-size: cover;
-		background-image: var(--face-image);
+	}
+	.faceImg {
+		width: calc(var(--dim-card) * 3);
+		position: absolute;
 	}
 	.innerSide {
 		width: calc(var(--dim-card) * 1);
-		min-height: 100%;
+		height: 100%;
+		min-height: calc(var(--dim-card) * 5);
 		display: flex;
 		flex-direction: column;
 		justify-content: space-evenly;
@@ -193,10 +192,7 @@ const faceImage = computed(() => `url(${FACE_IMG})`)
 	.suitImg {		
 		height: calc(var(--dim-card) * 1);
 		width: calc(var(--dim-card) * 1);
-		background-repeat: no-repeat;
-		background-position: center center;
-		background-size: contain;
-		background-image: var(--suit-image);
+		fill: var(--base-color);
 	}
 	.suitImg.small {		
 		height: calc(var(--dim-card) * .75);
@@ -206,21 +202,15 @@ const faceImage = computed(() => `url(${FACE_IMG})`)
 	h4.suitNum {
 		width: 100%;
 		text-align: center;
-	}
-	h4.suitNum[suit='Heart'], h4.suitNum[suit='Diamond'] {
-		color: var(--color-red);
-	} 
-	h4.suitNum[suit='Spade'], h4.suitNum[suit='Club'] {
-		color: var(--color-black);
+		color: var(--base-color);
 	}
 	.card.faceDown > .side {
 		width: calc(var(--dim-card) * .375);
 	}
-	.card.faceDown > .side > h4.suitNum {
+	.card.faceDown > .side > h4.suitNum,
+	.card.faceDown .suitImg,
+	.card.faceDown > .middle > .center.face > .faceImg  {
 		display: none;
-	}
-	.card.faceDown .suitImg {
-		background-image: none;
 	}
 	.card.faceDown > .middle {
 		padding-top: calc(var(--dim-card) * .375);
@@ -232,27 +222,10 @@ const faceImage = computed(() => `url(${FACE_IMG})`)
 		border-width:  calc(var(--dim-card) * .5);
 		border-radius: calc(var(--dim-card) * .25);
 	}
-	
-	.card.faceDown > .middle > .center.face {
-		background-image: none;
-	}
 	.card.flipping {
 		transform: translateX(var(--translate-x)) translateY(var(--translate-y)) rotateY(90deg);
 	}
 	.card.isDisabled {
 		pointer-events: none;
-	}
-	@keyframes flipCard {
-		0% {
-			transform: translateX(var(--translate-x)) translateY(var(--translate-y)) rotateY(0deg);
-		}
-
-		50% {
-			transform: translateX(var(--translate-x)) translateY(var(--translate-y)) rotateY(90deg);
-		}
-
-		100% {
-			transform: translateX(var(--translate-x)) translateY(var(--translate-y)) rotateY(0deg);
-		}
 	}
 </style>

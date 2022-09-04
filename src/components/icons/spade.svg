@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+        <path fill="var(--base-color)" d="M 72 112 C 64 108 64 82 60 82 S 56 108 48 112"/>
+        <path transform="matrix(1,0,0,1.2,0,-11.5)" fill="var(--base-color)" d="M 60 13.7 C 45 48.7 30 48.7 20 58.7 S 8 78.7 14 86.7 S 40 107.7 60 80.7"/>
+        <path transform="matrix(1,0,0,1.2,0,-11.5)" fill="var(--base-color)" d="M 60 13.7 C 75 48.7 90 48.7 100 58.7 S 112 78.7 106 86.7 S 80 107.7 60 80.7"/>
+</svg>

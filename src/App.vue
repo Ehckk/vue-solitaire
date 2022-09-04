@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { cards, board } from '@/utils/store'
-import Card from './components/Card.vue'
+import Card from '@/components/Card.vue'
 import { Suits } from '@/interfaces'
 import spade from '@/assets/images/spade.png'
 import heart from '@/assets/images/heart.png'
@@ -32,6 +32,8 @@ const getSuitImage = (suit: string) => {
 	<Bar></Bar>
 </template>
 <style>
+	@import '@/assets/globals.css';
+
 	button.recycle,
 	.pileStack,
 	.pileWin {

@@ -1,9 +1,9 @@
 :root {
 	--dim-card: 1.25rem;
 	--color-white: hsl(0, 0%, 100%);
-	--color-red: hsl(0, 100%, 30%);
-	--color-black: hsl(0, 0%, 0%);
-	--color-yellow: hsl(45, 50%, 50%);
+	--color-red: hsl(0, 80%, 45%);
+	--color-yellow: hsl(40, 80%, 45%);
+	--color-black: hsl(0, 10%, 10%);
 	--color-face-light: hsl(224, 50%, 70%);
 	--color-face-med: hsl(224, 50%, 60%);
 	--color-face-dark: hsl(224, 50%, 50%);
@@ -28,3 +28,4 @@ body {
 	z-index: -1000;
 	overflow: hidden;
 }
+
