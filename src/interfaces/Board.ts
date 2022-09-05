@@ -3,7 +3,7 @@ import type { CardValue } from './CardValue'
 import { Suits } from './Suits'
 import { board, cards, flipTime, targetCard } from '@/utils/store'
 import type { CardType } from './CardType'
-import { fixedBoard, getCriticalCards } from '@/utils'
+import { createCards, fixedBoard, getCriticalCards } from '@/utils'
 
 interface BoardState {
 	// previousMoves: MoveType[]
@@ -46,11 +46,31 @@ class Board {
 			'C': [],
 			'D': []
 		}
-	} 	
+	}
+	initialState: BoardState = {
+		draw: [],
+		discard: [],
+		stack: {
+			'1': [],
+			'2': [],
+			'3': [],
+			'4': [],
+			'5': [],
+			'6': [],
+			'7': []
+		},			
+		win: {
+			'S': [],
+			'H': [],
+			'C': [],
+			'D': []
+		}
+	}
 	autoMove: boolean = false
 	autoPlay: boolean = false
 	autoComplete: boolean = false
 	isWin: boolean = false
+	isResetting: boolean = false
 
 	constructor() {
 		this.initBoard()
@@ -60,23 +80,20 @@ class Board {
 			this.autoComplete = false
 		}
 		this.isWin = false
+		// if (fixedBoard === null) {
 		this.initCards()
 		this.dealCards()
+		// }
 		this.updateBoard()
-		console.log(cards.value.map((card) => `${card.value.stack}`));
+		// console.log(this.state);
 	}
 	initCards() {
 		const cardValues: CardValue[] = []
-		Object.keys(Suits).forEach((suit) => {
+		Object.keys(Suits).forEach((suit, x) => {
 			for (let i = 1; i <= 13; i++) {
-				if (fixedBoard.length === 0) {
-					cardValues.push({ suit: suit as Suits, value: i })
-				} else {
-					this.getStackFromName(`${fixedBoard[(Object.values(Suits).indexOf(suit as Suits) * 13) + (i - 1)]}`).push({ suit: suit as Suits, value: i })
-				}
+				cardValues.push({ suit: suit as Suits, value: i })
 			}
 		})
-		if (fixedBoard.length > 0) return
 		const randomCard = () => cardValues.splice(Math.floor(Math.random() * cardValues.length), 1)[0]
 		for (let x = 1; x <= 7; x++) {
 			const stack = this.getStackFromName(`${x}`)
@@ -89,8 +106,12 @@ class Board {
 			const selectedCard = randomCard()
 			this.getStackFromName('draw').push(selectedCard)
 		}
+		this.copyBoard()
 	}
 	dealCards() {
+		if (this.isResetting) {
+			this.dealStack('draw')
+		}
 		this.dealStack('discard')
 		for (let i = 1; i <= 7; i++) {
 			this.dealStack(`${i}`)
@@ -104,8 +125,19 @@ class Board {
 			this.moveCard(true, card.suit, card.value, stackName)
 		})
 	}
-	resetBoard() {
-		this.state = {
+	copyBoard() {
+		['draw', ...Array.from(Array(7).keys()).map(n => `${n + 1}`)].forEach((stackName) => {
+			if (stackName === 'draw') {
+				this.initialState.draw = [...this.getStackFromName(stackName).map(card => card)]
+			} else {
+				this.initialState.stack[stackName as '1' | '2' | '3' | '4' | '5' | '6' | '7'] = [...this.getStackFromName(stackName as '1' | '2' | '3' | '4' | '5' | '6' | '7')]
+			}
+		})
+	}
+	clearBoard() {
+		cards.value = createCards()
+		this.setTargetCard(null)
+		this.state, this.initialState = {
 			draw: [],
 			discard: [],
 			stack: {
@@ -123,10 +155,36 @@ class Board {
 				'C': [],
 				'D': []
 			}
-		} 
+		} 	
 		this.initBoard()
 	}
-
+	resetBoard() {
+		this.isResetting = true
+		this.setTargetCard(null)
+		this.state = {
+			draw: [...this.initialState.draw.map(card => card)],
+			discard: [],
+			stack: {
+				'1': [...this.initialState.stack[1].map(card => card)],
+				'2': [...this.initialState.stack[2].map(card => card)],
+				'3': [...this.initialState.stack[3].map(card => card)],
+				'4': [...this.initialState.stack[4].map(card => card)],
+				'5': [...this.initialState.stack[5].map(card => card)],
+				'6': [...this.initialState.stack[6].map(card => card)],
+				'7': [...this.initialState.stack[7].map(card => card)]
+			},			
+			win: {
+				'S': [],
+				'H': [],
+				'C': [],
+				'D': []
+			}
+		};
+		console.log(this.initialState);
+		this.dealCards()
+		this.updateBoard()
+		this.isResetting = false
+	}
 	getStackFromName(name: string): CardValue[] {
 		if (name === 'discard') {
 			return this.state.discard
@@ -267,7 +325,6 @@ class Board {
 			this.getNextWinCards().then(async (nextWinCards) => {
 				this.isWin = await this.autoCompleteBoard(nextWinCards) ?? false
 			})
-
 		}
 	}
 	updateStack(stackName: string) {
@@ -289,10 +346,13 @@ class Board {
 			card.value.facedown = false
 			return
 		}
-		const topCard = this.getTopCard(card.value.stack)
-		if (!topCard) return
-		if (!this.cardsMatch({ suit: card.value.suit, value: card.value.value }, topCard)) return
-		card.value.facedown = false
+		if (this.isResetting) {
+			card.value.facedown = !this.isTopCard(card.value)
+			return
+		}
+		if (this.isTopCard(card.value)) {
+			card.value.facedown = false
+		}
 	}
 	moveCard(init: boolean, suit: Suits, value: number, newStack: string) {
 		const card = this.getCardFromValue(suit, value)

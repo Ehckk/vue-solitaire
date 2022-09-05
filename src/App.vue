@@ -2,38 +2,33 @@
 import { cards, board } from '@/utils/store'
 import Card from '@/components/Card.vue'
 import { Suits } from '@/interfaces'
-import spade from '@/assets/images/spade.png'
-import heart from '@/assets/images/heart.png'
-import club from '@/assets/images/club.png'
-import diamond from '@/assets/images/diamond.png'
+import SpadeComponent from '@/assets/icons/spade.svg?component'
+import HeartComponent from '@/assets/icons/heart.svg?component'
+import ClubComponent from '@/assets/icons/club.svg?component'
+import DiamondComponent from '@/assets/icons/diamond.svg?component'
 import Bar from './components/Bar.vue'
+import { computed } from '@vue/runtime-dom'
 
-const getSuitImage = (suit: string) => {
-	switch (suit) {
-		case Suits.Spade:
-			return spade
-		case Suits.Heart:
-			return heart
-		case Suits.Club:
-			return club
-		case Suits.Diamond:
-			return diamond
-	}
-}
+const baseColor = computed(() => 'var(--color-util)')
 </script>
-
 <template>
 	<button class="recycle" @click="board.recycleCards()">Recycle</button>
 	<div class="pileStack" v-for="num in Array.from(Array(7).keys()).map((n) => n + 1)" :class="`s${num}`" @click="board.stackMove(num)"></div>
 	<div class="pileWin" v-for="suit in Object.keys(Suits)" :class="suit" @click="board.winMove()">
-		<div class="pileWin__icon" :class="suit" :style="{ backgroundImage: `url(${getSuitImage(suit)}`}"></div>
+		<SpadeComponent v-if="suit === Suits.Spade" class="pileWin__icon Spade"></SpadeComponent>
+		<HeartComponent v-if="suit === Suits.Heart" class="pileWin__icon Heart" :class="suit"></HeartComponent>
+		<ClubComponent v-if="suit === Suits.Club" class="pileWin__icon Club" :class="suit"></ClubComponent>
+		<DiamondComponent v-if="suit === Suits.Diamond" class="pileWin__icon Diamond" :class="suit"></DiamondComponent>
 	</div>
 	<Card v-for="card, i in cards" :key="i" :card="card.value"></Card>
 	<Bar></Bar>
 </template>
-<style>
+<style scoped>
 	@import '@/assets/globals.css';
-
+	* {
+		--base-color: v-bind(baseColor);
+		/* --card-flip-time: v-bind(CARD_FLIP_TIME / 2); TODO lol */
+	}
 	button.recycle,
 	.pileStack,
 	.pileWin {
@@ -63,10 +58,6 @@ const getSuitImage = (suit: string) => {
 	.pileWin__icon {
 		height: calc(var(--dim-card) * 1.5);
 		width: calc(var(--dim-card) * 1.5);
-		background-repeat: no-repeat;
-		background-position: center center;
-		background-size: contain;
-		filter: brightness(0%) invert(71%) sepia(13%) saturate(4851%) hue-rotate(69deg) brightness(95%) contrast(56%);
 	}
 	.pileStack.s1 {
 		transform: translateX(calc(var(--dim-card) * 5.5 * 2.5));

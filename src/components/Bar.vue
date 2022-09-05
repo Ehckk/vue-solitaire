@@ -13,12 +13,6 @@ onUnmounted(() => {
 	window.removeEventListener('keyup', handleKeyUp)
 })
 
-const newGame = () => {
-	cards.value = createCards()
-	targetCard.value = null
-	board.resetBoard()
-} 
-
 const handleKeyDown = (e: KeyboardEvent) => {
 	if (e.key === 'Shift') {		
 		board.autoMove = true		
@@ -34,7 +28,8 @@ const winText = computed(() => board.isWin ? 'Winner!' : '')
 </script>
 <template>
 	<div class="bar">
-		<button class="reset" @click="newGame">New Game</button>
+		<button class="bar_btn" @click="board.resetBoard()">Reset</button>
+		<button class="bar_btn" @click="board.clearBoard()">New Game</button>
 		<span class="text">{{ winText }}</span>
 	</div>
 </template>
@@ -42,16 +37,17 @@ const winText = computed(() => board.isWin ? 'Winner!' : '')
 	.bar {
 		position: absolute;
 		bottom: 0;
-		height: calc(var(--dim-card) * 4);
+		height: calc(var(--dim-card) * 3);
 		width: 100%;
 		background-color: var(--color-util);
 		display: flex;
 		justify-content: center;
 		align-items: center;
 	}
-	button.reset {
-		height: calc(var(--dim-card) * 2.5);
-		width: calc(var(--dim-card) * 8);
+	button.bar_btn {
+		height: calc(var(--dim-card) * 2);
+		width: calc(var(--dim-card) * 7);
+		margin: calc(var(--dim-card) * .5);
 		cursor: pointer;
 		outline: none;
 		border: none;
@@ -65,10 +61,10 @@ const winText = computed(() => board.isWin ? 'Winner!' : '')
 		align-items: center;
 		user-select: none;
 	}
-	button.reset:hover {
+	button.bar_btn:hover {
 		background-color: var(--color-green-med);
 	}
-	button.reset:active {
+	button.bar_btn:active {
 		transform: translateY(calc(var(--dim-card) * .125));
 	}
 	span.text {

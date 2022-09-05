@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, watch, type FunctionalComponent, type SVGAttributes } from '@vue/runtime-dom';
-import JackComponent from './icons/jack.svg?component'
-import queen from '@/assets/images/queen.png'
-import king from '@/assets/images/king.png'
-import SpadeComponent from './icons/spade.svg?component'
-import HeartComponent from './icons/heart.svg?component'
-import ClubComponent from './icons/club.svg?component'
-import DiamondComponent from './icons/diamond.svg?component'
+import JackComponent from '@/assets/icons/jack.svg?component'
+import QueenComponent from '@/assets/icons/queen.svg?component'
+import KingComponent from '@/assets/icons/king.svg?component'
+import SpadeComponent from '@/assets/icons/spade.svg?component'
+import HeartComponent from '@/assets/icons/heart.svg?component'
+import ClubComponent from '@/assets/icons/club.svg?component'
+import DiamondComponent from '@/assets/icons/diamond.svg?component'
 import type { CardType } from '@/interfaces';
 import { board, flipTime, targetCard } from '@/utils/store';
 import { Suits } from '@/interfaces/Suits';
@@ -83,7 +83,6 @@ const cardClick = () => {
 const cardClass = computed(() => ({ 'faceDown': faceDown, 'flipping': isFlipping.value, 'isTarget': isTarget.value, 'isDisabled': (faceDown && cardRef.value.stack !== 'draw') || locked.value }))
 const baseColor = computed(() => props.card.suit === Suits.Spade || props.card.suit === Suits.Club ? 'var(--color-black)' : 'var(--color-red)')
 const altColor = computed(() =>  props.card.suit === Suits.Spade || props.card.suit === Suits.Club ? 'var(--color-red)' : 'var(--color-black)')
-
 </script>
 <template>
 	<div class="card" :class="cardClass" @click="cardClick()">
@@ -94,6 +93,8 @@ const altColor = computed(() =>  props.card.suit === Suits.Spade || props.card.s
 		<div class="middle">
 			<div class="center" :class="{ face: card.value > 10 }">		
 				<JackComponent v-if="card.value ===  11" class="faceImg"/>
+				<QueenComponent v-if="card.value ===  12" class="faceImg"/>
+				<KingComponent v-if="card.value ===  13" class="faceImg"/>
 				<div class="innerSide left" :class="{ start: card.value > 10 }">
 					<SuitComponent v-if="card.value > 10" class="suitImg"/>
 					<SuitComponent v-else-if="card.value > 3" v-for="(i) in card.value < 10 ? Math.floor((card.value) / 2) : 4" :key="i" class="suitImg"/>

@@ -7,7 +7,7 @@ interface MoveType {
 	}
 	to: {
 		stack: string
-		topCard: CardType | null
+		topCard: CardType
 	}
 }
 
